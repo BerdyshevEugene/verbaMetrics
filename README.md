@@ -15,10 +15,12 @@ verbaMetrics
 │   │   └── text_processor.py - содержит класс TextProcessor для обработки данных 
 │   │
 │   ├── logger
-│   ├── log
+│   ├── logs
 │   │
 │   └── rabbitmq
-│       └── connection.py - подключение и регистрация обработчика сообщений
+│       ├── connection.py - подключение и регистрация обработчика сообщений
+│       └── publisher.py - отправка данных в rabbitmq
+│
 │
 ├── main.py
 ├── .env - прописывается служебная информация
