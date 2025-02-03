@@ -6,11 +6,15 @@ from loguru import logger
 from aio_pika import IncomingMessage
 
 from handlers.text_processor import TextProcessor
-from .dict import stop_words, target_words, target_words_2
+from .dict import (
+    stop_words, target_words_1, target_words_2, target_words_3, target_words_4)
 
 
 processor = TextProcessor(
-    target_words=[target_words, target_words_2],
+    target_words_1=target_words_1,
+    target_words_2=target_words_2,
+    target_words_3=target_words_3,
+    target_words_4=target_words_4,
     stop_words=stop_words
 )
 
@@ -30,12 +34,14 @@ async def handle_message(message: IncomingMessage):
             await message.reject()
             return
 
-        # Передаем оба словаря отдельно
         processor = TextProcessor(
-            target_words=target_words,  # передаем словарь target_words
-            target_words_2=target_words_2,  # передаем словарь target_words_2
+            target_words_1=target_words_1,
+            target_words_2=target_words_2,
+            target_words_3=target_words_3,
+            target_words_4=target_words_4,
             stop_words=stop_words
         )
+
         result_data = processor.analyze_text(master_id, text)
         await processor.publish_results_to_queue(result_data)
         await message.ack()
