@@ -9,10 +9,12 @@ from natasha import Doc, Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger
 
 from rabbitmq.publisher import publish_results_verbametrics_dg_queue
 from .dict import (
-    stop_words, target_words_1, target_words_2, target_words_3, target_words_4)
+    stop_words, target_words_1, target_words_2, target_words_3, target_words_4,
+    target_words_5, target_words_6)
 from .target_word_analyzer import (
     MostFrequentTargetWordAnalyzer, LastMentionedTargetWordAnalyzer,
-    AdvertSourceTargetWordAnalyzer
+    AdvertSourceTargetWordAnalyzer, MostFrequentTargetPhraseAnalyzer,
+    MostValuableWordAnalyzer
 )
 
 
@@ -23,6 +25,8 @@ class TextProcessor:
         target_words_2=None,
         target_words_3=None,
         target_words_4=None,
+        target_words_5=None,
+        target_words_6=None,
         stop_words=None
     ):
         self.segmenter = Segmenter()
@@ -35,13 +39,17 @@ class TextProcessor:
         self.target_words_2 = target_words_2 or {}
         self.target_words_3 = target_words_3 or {}
         self.target_words_4 = target_words_4 or {}
+        self.target_words_5 = target_words_5 or {}
+        self.target_words_6 = target_words_6 or {}
         self.stop_words = stop_words or set()
 
         self.analyzers = {
-            'target_words_1': MostFrequentTargetWordAnalyzer(self.compare_words),
-            'target_words_2': MostFrequentTargetWordAnalyzer(self.compare_words),
+            'target_words_1': MostValuableWordAnalyzer(self.compare_words),
+            'target_words_2': MostFrequentTargetPhraseAnalyzer(self.compare_words),
             'target_words_3': LastMentionedTargetWordAnalyzer(self.compare_words),
             'target_words_4': AdvertSourceTargetWordAnalyzer(self.compare_words),
+            'target_words_5': MostFrequentTargetPhraseAnalyzer(self.compare_words),
+            'target_words_6': MostFrequentTargetPhraseAnalyzer(self.compare_words),
         }
 
     def compare_words(self, word1, word2):
@@ -68,16 +76,53 @@ class TextProcessor:
 
         return root_tokens,  # lemmatized_tokens
 
+    # def analyze_text(self, master_id, text):
+    #     '''функция анализа текста'''
+    #     root_tokens = self.process_text(text)[0]
+
+    #     result_data = {
+    #         key: analyzer.analyze(root_tokens, getattr(self, key), key)
+    #         if key != 'target_words_4'
+    #         else analyzer.analyze(text, getattr(self, key), key)
+    #         for key, analyzer in self.analyzers.items()
+    #     }
+    #     logger.info(f'result data: {result_data}')
+
+    #     return {
+    #         'ChannelName': 'IncomingCall',
+    #         'Event': 'verbaMetrics',
+    #         'MasterID': master_id,
+    #         **result_data
+    #     }
+
     def analyze_text(self, master_id, text):
         '''функция анализа текста'''
         root_tokens = self.process_text(text)[0]
 
-        result_data = {
-            key: analyzer.analyze(root_tokens, getattr(self, key), key)
-            if key != 'target_words_4'
-            else analyzer.analyze(text, getattr(self, key), key)
-            for key, analyzer in self.analyzers.items()
-        }
+        result_data = {}
+
+        # cначала анализируем target_words_5
+        target_words_5_result = self.analyzers['target_words_5'].analyze(
+            root_tokens, self.target_words_5, 'target_words_5'
+        )
+        result_data['target_words_5'] = target_words_5_result
+
+        if target_words_5_result is None:
+            target_words_6_result = self.analyzers['target_words_6'].analyze(
+                root_tokens, self.target_words_6, 'target_words_6'
+            )
+            result_data['target_words_6'] = target_words_6_result
+        else:
+            result_data['target_words_6'] = None
+
+        for key, analyzer in self.analyzers.items():
+            if key not in ['target_words_5', 'target_words_6']:
+                result_data[key] = analyzer.analyze(
+                    root_tokens if key != 'target_words_4' else text,
+                    getattr(self, key),
+                    key
+                )
+
         logger.info(f'result data: {result_data}')
 
         return {
@@ -112,6 +157,8 @@ class TextProcessor:
                 target_words_2=target_words_2,
                 target_words_3=target_words_3,
                 target_words_4=target_words_4,
+                target_words_5=target_words_5,
+                target_words_6=target_words_6,
                 stop_words=stop_words
             )
             result_data = processor.analyze_text(master_id, text)
