@@ -1,12 +1,10 @@
-import logging
+from collections import Counter
 import re
 import pymorphy3
 
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from loguru import logger
-
-from collections import Counter, defaultdict
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -240,8 +238,7 @@ class MostValuableWordAnalyzer(TargetWordAnalyzer):
                         word_counter[category][phrase] += category_weight
 
         if category_counter:
-            most_common_category, total_weight = category_counter.most_common(1)[
-                0]
+            most_common_categories = category_counter.most_common(2)
 
             for category, phrases_counter in word_counter.items():
                 if category_counter[category] > 0:
@@ -252,14 +249,22 @@ class MostValuableWordAnalyzer(TargetWordAnalyzer):
                     logger.info(
                         f'category "{category}": {category_counter[category]} times, including: "{details}"')
 
-            logger.info(f'selected category: "{most_common_category}"')
+            if len(most_common_categories) == 1:
+                most_common_category = most_common_categories[0][0]
+                logger.info(f'selected category: "{most_common_category}"')
+                return most_common_category
+            else:
+                selected_categories = ', '.join(
+                    [cat for cat, _ in most_common_categories]
+                )
+                logger.info(f'selected categories: {selected_categories}')
+                return selected_categories
+            # if most_common_category == "Диагностика" and total_weight < max(category_counter.values()):
+            #     most_common_category = [
+            #         cat for cat, _ in category_counter.most_common() if cat != "Диагностика"][0]
 
-            if most_common_category == "Диагностика" and total_weight < max(category_counter.values()):
-                most_common_category = [
-                    cat for cat, _ in category_counter.most_common() if cat != "Диагностика"][0]
-
-            logger.info(f'final selected category: "{most_common_category}"')
-            return most_common_category
+            # logger.info(f'final selected category: "{most_common_category}"')
+            # return most_common_category
         else:
             logger.info(f'no matches found in {result_key}')
             return None

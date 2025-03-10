@@ -10,7 +10,7 @@ from natasha import Doc, Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger
 from rabbitmq.publisher import publish_results_verbametrics_dg_queue
 from .dict import (
     stop_words, target_words_1, target_words_2, target_words_3, target_words_4,
-    target_words_5, target_words_6)
+    target_words_5, target_words_6, target_words_answer_tags)
 from .target_word_analyzer import (
     MostFrequentTargetWordAnalyzer, LastMentionedTargetWordAnalyzer,
     AdvertSourceTargetWordAnalyzer, MostFrequentTargetPhraseAnalyzer,
@@ -27,7 +27,8 @@ class TextProcessor:
         target_words_4=None,
         target_words_5=None,
         target_words_6=None,
-        stop_words=None
+        stop_words=None,
+        target_words_answer_tags=None,
     ):
         self.segmenter = Segmenter()
         self.emb = NewsEmbedding()
@@ -42,6 +43,7 @@ class TextProcessor:
         self.target_words_5 = target_words_5 or {}
         self.target_words_6 = target_words_6 or {}
         self.stop_words = stop_words or set()
+        self.target_words_answer_tags = target_words_answer_tags
 
         self.analyzers = {
             'target_words_1': MostValuableWordAnalyzer(self.compare_words),
@@ -64,44 +66,22 @@ class TextProcessor:
         doc.segment(self.segmenter)
         doc.tag_morph(self.morph_tagger)
 
-        # lemmatized_tokens = []
         root_tokens = []
 
         for token in doc.tokens:
             token.lemmatize(self.morph_vocab)
             if token.lemma in self.stop_words:
                 continue
-            # lemmatized_tokens.append((token.text, token.lemma, token.pos))
             root_tokens.append(token.lemma)
 
-        return root_tokens,  # lemmatized_tokens
-
-    # def analyze_text(self, master_id, text):
-    #     '''функция анализа текста'''
-    #     root_tokens = self.process_text(text)[0]
-
-    #     result_data = {
-    #         key: analyzer.analyze(root_tokens, getattr(self, key), key)
-    #         if key != 'target_words_4'
-    #         else analyzer.analyze(text, getattr(self, key), key)
-    #         for key, analyzer in self.analyzers.items()
-    #     }
-    #     logger.info(f'result data: {result_data}')
-
-    #     return {
-    #         'ChannelName': 'IncomingCall',
-    #         'Event': 'verbaMetrics',
-    #         'MasterID': master_id,
-    #         **result_data
-    #     }
+        return root_tokens
 
     def analyze_text(self, master_id, text):
         '''функция анализа текста'''
-        root_tokens = self.process_text(text)[0]
+        root_tokens = self.process_text(text)
 
         result_data = {}
 
-        # cначала анализируем target_words_5
         target_words_5_result = self.analyzers['target_words_5'].analyze(
             root_tokens, self.target_words_5, 'target_words_5'
         )
@@ -159,7 +139,8 @@ class TextProcessor:
                 target_words_4=target_words_4,
                 target_words_5=target_words_5,
                 target_words_6=target_words_6,
-                stop_words=stop_words
+                stop_words=stop_words,
+                target_words_answer_tags=target_words_answer_tags,
             )
             result_data = processor.analyze_text(master_id, text)
 

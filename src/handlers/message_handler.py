@@ -8,7 +8,7 @@ from aio_pika import IncomingMessage
 from handlers.text_processor import TextProcessor
 from .dict import (
     stop_words, target_words_1, target_words_2, target_words_3, target_words_4,
-    target_words_5, target_words_6)
+    target_words_5, target_words_6, target_words_answer_tags)
 
 
 processor = TextProcessor(
@@ -18,7 +18,8 @@ processor = TextProcessor(
     target_words_4=target_words_4,
     target_words_5=target_words_5,
     target_words_6=target_words_6,
-    stop_words=stop_words
+    stop_words=stop_words,
+    target_words_answer_tags=target_words_answer_tags,
 )
 
 
@@ -44,7 +45,7 @@ async def handle_message(message: IncomingMessage):
             target_words_4=target_words_4,
             target_words_5=target_words_5,
             target_words_6=target_words_6,
-            stop_words=stop_words
+            target_words_answer_tags=target_words_answer_tags,
         )
 
         result_data = processor.analyze_text(master_id, text)
