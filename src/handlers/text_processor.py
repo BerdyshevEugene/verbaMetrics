@@ -49,7 +49,7 @@ class TextProcessor:
             'target_words_1': MostValuableWordAnalyzer(self.compare_words),
             'target_words_2': MostFrequentTargetPhraseAnalyzer(self.compare_words),
             'target_words_3': LastMentionedTargetWordAnalyzer(self.compare_words),
-            'target_words_4': AdvertSourceTargetWordAnalyzer(self.compare_words),
+            'target_words_4': AdvertSourceTargetWordAnalyzer(self.compare_words, self.target_words_answer_tags),
             'target_words_5': MostFrequentTargetPhraseAnalyzer(self.compare_words),
             'target_words_6': MostFrequentTargetPhraseAnalyzer(self.compare_words),
         }

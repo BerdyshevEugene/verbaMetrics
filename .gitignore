@@ -164,3 +164,5 @@ src/logs/
 src/logs/*
 debug.log
 error.log
+dict.py
+src/handlers/dict.py

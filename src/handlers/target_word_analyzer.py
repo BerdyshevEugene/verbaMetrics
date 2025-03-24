@@ -89,8 +89,9 @@ class AdvertSourceTargetWordAnalyzer(TargetWordAnalyzer):
     абонента сразу после вопроса оператора
     '''
 
-    def __init__(self, compare_function):
+    def __init__(self, compare_function, target_words_answer_tags):
         self.compare_function = compare_function
+        self.answer_matcher = AnswerMatcher(target_words_answer_tags)
 
     def analyze(self, text, target_words, result_key):
         answer = None
@@ -107,6 +108,29 @@ class AdvertSourceTargetWordAnalyzer(TargetWordAnalyzer):
                         0].strip()
                     break
 
+        matched_key = self.answer_matcher.match_answer(answer)
+        return matched_key
+
+
+class AnswerMatcher:
+    def __init__(self, target_words_answer_tags):
+        self.target_words_answer_tags = target_words_answer_tags
+
+    def match_answer(self, answer):
+        '''
+        сопоставляет ответ абонента с ключами из target_words_answer_tags.
+        возвращает соответствующий ключ или 'неизвестно', если совпадений нет.
+        '''
+        if not answer:
+            logger.info('no answer')
+            return 'ответ отсутствует'
+        for key, phrases in self.target_words_answer_tags.items():
+            for phrase in phrases:
+                logger.info(f'{phrase} -> {key}')
+                if phrase.lower() in answer:
+                    return key
+
+        logger.info('No matches found, we are returning an unprocessed answer')
         return answer
 
 
