@@ -1,0 +1,31 @@
+name: verbaMetrics
+
+on: [push, pull_request]
+
+jobs:
+    lint:
+      name: ruff lint
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout repo
+          uses: actions/checkout@v4
+  
+        - name: set up python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+  
+        - name: install ruff via uv
+          run: |
+            pip install uv
+            uv venv .venv
+            UV_VENV=.venv uv pip install ruff
+  
+        - name: run ruff check
+          run: UV_VENV=.venv uv run -- ruff check .
+  
+        - name: check formatting
+          run: UV_VENV=.venv uv run -- ruff format --check .
+  
+        - name: run ruff lint
+          run: UV_VENV=.venv uv run -- ruff check .

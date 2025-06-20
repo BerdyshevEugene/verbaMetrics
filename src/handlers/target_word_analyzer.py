@@ -3,7 +3,7 @@ import re
 import pymorphy3
 
 from abc import ABC, abstractmethod
-from collections import Counter, defaultdict
+from collections import defaultdict
 from loguru import logger
 from sklearn.feature_extraction.text import TfidfVectorizer
 

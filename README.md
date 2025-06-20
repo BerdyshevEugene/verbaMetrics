@@ -1,9 +1,21 @@
-# verbaMetrics
+
+[![Ruff](https://github.com/BerdyshevEugene/verbaMetrics/actions/workflows/ruff.yml/badge.svg?cache=buster)](https://github.com/BerdyshevEugene/verbaMetrics/actions/workflows/ruff.yml)
+
+## verbaMetrics
+
+<details>
 
 a program for extracting the necessary keywords from the context. Uses lemmatization, takes data from the queue in RabbitMQ, performs processing and sends it to the queue. It works in conjunction with datagate and v2t
----
-программа для выделения необходимых ключевых слов из контекста. Использует лемматизацию, берет данные из очереди в RabbitMQ,  производит обработку и отправляет в очередь. Работает в связке с datagate и v2t.
 
+программа для выделения необходимых ключевых слов из контекста. Использует лемматизацию, берет данные из очереди в RabbitMQ, производит обработку и отправляет в очередь. Работает в связке с datagate и v2t.
+
+</details>
+
+---
+
+## Структура проекта:
+
+<details>
 
 ```python
 verbaMetrics
@@ -28,45 +40,153 @@ verbaMetrics
 └── README.md
 ```
 
-## Инструкция
-1. создайте и активируйте виртуальное окружение и установите зависимости:
-```python
-py -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+</details>
+
+---
+
+## Установка и использование UV
+
+<details>
+<summary>📦 Способы установки UV</summary>
+
+### 1. Установка через автономные установщики (рекомендуется)
+
+**Для macOS и Linux:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-2. в папке socket_handler создайте файл `.env`. В нем `пропишите значения для глобальных переменных`:
-- MW_DB_HOST
-- MW_DB_PORT
-- HOST = localhost
-- PORT = localport
-- MW_DB_USER
-- MW_DB_PASS
-- MW_DB_NAME
-
-3. запустите сокет:
-```python
-cd src/
-uvicorn main:app --host 0.0.0.0 --port 7999
+**Для Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
+
+### 2. Установка через PyPI (альтернативный способ)
+```bash
+pip install uv
+```
+
+### Обновление UV
+После установки вы можете обновить UV до последней версии:
+```bash
+uv self update
+```
+
+🔗 Подробнее об установке: [Официальная документация](https://docs.astral.sh/uv/getting-started/installation/)
+</details>
+
+---
+
+<summary>🚀 Основные команды UV</summary>
+
+<details>
+
+### Управление Python-окружением
+
+**Установка конкретной версии Python:**
+```bash
+uv python install 3.11  # Установит Python 3.11
+```
+
+### Управление зависимостями
+
+**Синхронизация зависимостей проекта:**
+```bash
+uv sync  # Аналог pip install + pip-compile
+```
+
+**Запуск команд в окружении проекта:**
+```bash
+uv run <COMMAND>  # Например: uv run pytest
+```
+
+</details>
+
+---
+
+<summary>🔍 Интеграция с Ruff</summary>
+
+<details>
+
+[Ruff](https://github.com/astral-sh/ruff) - это молниеносный линтер для Python, также разработанный Astral.
+
+**Установка Ruff через UV:**
+```bash
+uvx ruff  # Установит последнюю версию Ruff
+```
+
+**Проверка кода с помощью Ruff:**
+```bash
+uvx ruff check .  # Проверит все файлы в текущей директории
+```
+</details>
+
+---
+
+## Инструкция по запуску проекта
+
+<details>
+
+### Установка и запуск окружения:
+```bash
+uv venv -p 3.11 .venv  # создаём виртуальное окружение на python 3.11
+uv pip install -r requirements.txt  # ставим зависимости
+```
+
+### Запуск программы:
+```bash
+cd src
+uvicorn main:app --host 0.0.0.0 --port 7999 --reload
+```
+
+</details>
+
+---
+
+## Запуск проекта в Docker
+
+<details>
+
+### Сборка
+1. Авторизация в Docker Hub 
+```
+docker login
+``` 
+2. Сборка Docker-образа
+```
+docker build -t gsssupport/verbaMetrics_transcriberapp:latest .
+```
+3. Публикация образа в Docker Hub
+```
+docker push gsssupport/verbaMetrics_transcriberapp:latest
+```
+
+### Запуск
+1. Авторизация в Docker Hub
+```
+docker login
+``` 
+2. Запуск Docker-контейнера
+```
+docker-compose up
+```
+
+</details>
+
+---
 
 ## Остальная информация
+
+<details>
+
+```
 CompanyName: GMG
-
 FileDescription: verbaMetrics
-
 InternalName: verbaMetrics
-
-LegalCopyright: © GMG. All rights reserved.
-
-OriginalFilename: -
-
 ProductName: verbaMetrics
-
 Author: Berdyshev E.A.
-
 Development and support: Berdyshev E.A.
+LegalCopyright: © GMG. All rights reserved.
+```
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-
+</details>

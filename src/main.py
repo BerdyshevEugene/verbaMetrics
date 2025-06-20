@@ -7,15 +7,24 @@ from logger.logger import setup_logger
 setup_logger()
 app = FastAPI()
 
+rabbitmq_task = None  # глобальная переменная для хранения задачи
+
 
 @app.on_event('startup')
 async def startup_event():
-    asyncio.create_task(connect_to_rabbitmq())
+    global rabbitmq_task
+    rabbitmq_task = asyncio.create_task(connect_to_rabbitmq())
 
 
 @app.on_event('shutdown')
 async def shutdown_event():
-    pass
+    global rabbitmq_task
+    if rabbitmq_task:
+        rabbitmq_task.cancel()
+        try:
+            await rabbitmq_task
+        except asyncio.CancelledError:
+            pass
 
 # если запускается напрямую
 if __name__ == '__main__':

@@ -1,4 +1,3 @@
-import asyncio
 import os
 import json
 
@@ -15,6 +14,7 @@ async def publish_results_verbametrics_dg_queue(data: dict):
     '''
     отправка ключевых слов в dg
     '''
+    connection = None
     try:
         connection = await connect_robust(RABBITMQ_URL)
         async with connection:
@@ -29,3 +29,6 @@ async def publish_results_verbametrics_dg_queue(data: dict):
         logger.error(f'failed to connect to RabbitMQ: {e}')
     except Exception as e:
         logger.error(f'error publishing message to RabbitMQ: {e}')
+    finally:
+        if connection and not connection.is_closed:
+            await connection.close()

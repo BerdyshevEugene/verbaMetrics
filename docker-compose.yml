@@ -1,0 +1,13 @@
+services:
+  verbametrics:
+    build: .
+    container_name: verbaMetrics
+    ports:
+      - "7999:7999"
+    env_file:
+      - .env
+    volumes:
+      - ./apps:/app/apps
+    command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "7999"]
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL}

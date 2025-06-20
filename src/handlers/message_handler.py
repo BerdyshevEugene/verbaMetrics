@@ -1,6 +1,5 @@
 import asyncio
 import json
-import os
 
 from loguru import logger
 from aio_pika import IncomingMessage
@@ -25,7 +24,7 @@ processor = TextProcessor(
 
 async def handle_message(message: IncomingMessage):
     '''
-    обработка данных из RabbitMQ
+    обработка данных из rabbitmq
     '''
     try:
         data = json.loads(message.body)
@@ -38,17 +37,18 @@ async def handle_message(message: IncomingMessage):
             await message.reject()
             return
 
-        processor = TextProcessor(
-            target_words_1=target_words_1,
-            target_words_2=target_words_2,
-            target_words_3=target_words_3,
-            target_words_4=target_words_4,
-            target_words_5=target_words_5,
-            target_words_6=target_words_6,
-            target_words_answer_tags=target_words_answer_tags,
-        )
+        loop = asyncio.get_event_loop()
+        try:
+            result_data = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None, processor.analyze_text, master_id, text),
+                timeout=100.0
+            )
+        except asyncio.TimeoutError:
+            logger.error(f'text processing timeout for master_id={master_id}')
+            await message.reject()
+            return
 
-        result_data = processor.analyze_text(master_id, text)
         await processor.publish_results_to_queue(result_data)
         await message.ack()
 
