@@ -22,10 +22,10 @@ jobs:
             UV_VENV=.venv uv pip install ruff
   
         - name: run ruff check
-          run: UV_VENV=.venv uv run -- ruff check .
+          run: UV_VENV=.venv uv run -- ruff check . --no-cache
   
         - name: check formatting
-          run: UV_VENV=.venv uv run -- ruff format --check .
+          run: UV_VENV=.venv uv run -- ruff format --check . --no-cache
   
         - name: run ruff lint
-          run: UV_VENV=.venv uv run -- ruff check .
+          run: UV_VENV=.venv uv run -- ruff check . --no-cache
